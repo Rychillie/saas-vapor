@@ -42,15 +42,19 @@ struct AuthController: RouteCollection {
 
         // Create the new user
         let user = User(
-            name: signUpDTO.name, email: signUpDTO.email, passwordHash: hashedPassword,
-            avatarUrl: nil)
+            name: signUpDTO.name,
+            email: signUpDTO.email,
+            passwordHash: hashedPassword,
+            avatarUrl: nil
+        )
         try await user.save(on: req.db)
 
         // If there is an organization, add the user to it
         if let organization = organization {
             let member = Member(
                 role: .MEMBER, organizationID: try organization.requireID(),
-                userID: try user.requireID())
+                userID: try user.requireID()
+            )
             try await member.save(on: req.db)
         }
 
@@ -62,9 +66,7 @@ struct AuthController: RouteCollection {
         let signInDTO = try req.content.decode(SignInDTO.self)
 
         // Search the user in the database by email
-        guard
-            let user = try await User.query(on: req.db).filter(\.$email == signInDTO.email).first()
-        else {
+        guard let user = try await User.query(on: req.db).filter(\.$email == signInDTO.email).first() else {
             throw Abort(.badRequest, reason: "Invalid credentials.")
         }
 
@@ -102,8 +104,7 @@ struct AuthController: RouteCollection {
         let emailDTO = try req.content.decode(EmailDTO.self)
 
         // Search user by email
-        guard let user = try await User.query(on: req.db).filter(\.$email == emailDTO.email).first()
-        else {
+        guard let user = try await User.query(on: req.db).filter(\.$email == emailDTO.email).first() else {
             return .created  // Returns 201 even if the user does not exist to avoid exposure
         }
 
@@ -122,11 +123,10 @@ struct AuthController: RouteCollection {
         let resetDTO = try req.content.decode(ResetPasswordDTO.self)
 
         // Fetch password recovery token
-        guard
-            let token = try await Token.query(on: req.db)
-                .filter(\.$id == resetDTO.code)
-                .filter(\.$type == .PASSWORD_RECOVER)
-                .first()
+        guard let token = try await Token.query(on: req.db)
+            .filter(\.$id == resetDTO.code)
+            .filter(\.$type == .PASSWORD_RECOVER)
+            .first()
         else {
             throw Abort(.unauthorized)
         }
