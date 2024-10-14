@@ -1,9 +1,9 @@
-import Vapor
 import Fluent
+import Vapor
 
 final class Member: Model, Content {
     static let schema = "members"
-    
+
     @ID(key: .id)
     var id: UUID?
 
@@ -16,7 +16,7 @@ final class Member: Model, Content {
     @Parent(key: "user_id")
     var user: User
 
-    init() { }
+    init() {}
 
     init(id: UUID? = nil, role: Role = .MEMBER, organizationID: UUID, userID: UUID) {
         self.id = id

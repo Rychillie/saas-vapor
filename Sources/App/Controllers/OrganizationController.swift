@@ -13,19 +13,25 @@ struct OrganizationController: RouteCollection {
       organization.delete(use: delete)
     }
   }
-    
+
   func create(req: Request) async throws -> Organization {
     let input = try req.content.decode(CreateOrganizationInput.self)
+    let user = try req.auth.require(User.self)
     let organization = try Organization(
       name: input.name,
       slug: input.name.slugify(),
       domain: input.domain,
       shouldAttachUsersByDomain: input.shouldAttachUsersByDomain,
-      ownerID: try req.auth.require(User.self).requireID(),
+      ownerID: user.requireID(),
       avatarUrl: nil
     )
     try await validateOrganization(organization, on: req.db)
     try await organization.save(on: req.db)
+
+    // Add the owner as a member with ADMIN role
+    let member = try Member(role: .ADMIN, organizationID: organization.requireID(), userID: user.requireID())
+    try await member.save(on: req.db)
+
     return organization
   }
 
@@ -68,7 +74,7 @@ struct OrganizationController: RouteCollection {
           throw Abort(.badRequest, reason: "Another organization with the same domain already exists.")
         }
       } else {
-        if try await Organization.query(on: db).filter(\.$domain == domain).first() != nil{
+        if try await Organization.query(on: db).filter(\.$domain == domain).first() != nil {
           throw Abort(.badRequest, reason: "Another organization with the same domain already exists.")
         }
       }

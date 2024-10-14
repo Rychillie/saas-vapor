@@ -1,9 +1,9 @@
-import Vapor
 import Fluent
+import Vapor
 
 final class Invite: Model, Content {
     static let schema = "invites"
-    
+
     @ID(key: .id)
     var id: UUID?
 
@@ -22,7 +22,7 @@ final class Invite: Model, Content {
     @Parent(key: "organization_id")
     var organization: Organization
 
-    init() { }
+    init() {}
 
     init(id: UUID? = nil, email: String, role: Role, organizationID: UUID, authorID: UUID? = nil) {
         self.id = id
@@ -31,10 +31,4 @@ final class Invite: Model, Content {
         self.$organization.id = organizationID
         self.$author.id = authorID
     }
-}
-
-enum Role: String, Codable {
-    case ADMIN
-    case MEMBER
-    case BILLING
 }
