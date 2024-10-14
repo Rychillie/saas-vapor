@@ -1,9 +1,9 @@
-import Vapor
 import Fluent
+import Vapor
 
 final class Organization: Model, Content {
     static let schema = "organizations"
-    
+
     @ID(key: .id)
     var id: UUID?
 
@@ -40,9 +40,12 @@ final class Organization: Model, Content {
     @Children(for: \.$organization)
     var projects: [Project]
 
-    init() { }
+    init() {}
 
-    init(id: UUID? = nil, name: String, slug: String, domain: String?, shouldAttachUsersByDomain: Bool, ownerID: UUID, avatarUrl: String?) {
+    init(
+        id: UUID? = nil, name: String, slug: String, domain: String?,
+        shouldAttachUsersByDomain: Bool, ownerID: UUID, avatarUrl: String?
+    ) {
         self.id = id
         self.name = name
         self.slug = slug
