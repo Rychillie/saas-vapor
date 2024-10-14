@@ -19,7 +19,7 @@ struct OrganizationController: RouteCollection {
     let user = try req.auth.require(User.self)
     let organization = try Organization(
       name: input.name,
-      slug: input.name.slugify(),
+      slug: input.name.createSlug(),
       domain: input.domain,
       shouldAttachUsersByDomain: input.shouldAttachUsersByDomain,
       ownerID: user.requireID(),
@@ -92,16 +92,4 @@ struct UpdateOrganizationInput: Content {
   let name: String
   let domain: String?
   let shouldAttachUsersByDomain: Bool
-}
-
-extension String {
-  func slugify() -> String {
-    let allowedCharacters = CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyz0123456789-")
-    return self.lowercased()
-      .components(separatedBy: CharacterSet.alphanumerics.inverted)
-      .joined(separator: "-")
-      .components(separatedBy: allowedCharacters.inverted)
-      .joined()
-      .trimmingCharacters(in: CharacterSet(charactersIn: "-"))
-  }
 }

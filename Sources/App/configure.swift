@@ -12,10 +12,12 @@ public func configure(_ app: Application) async throws {
     // Register Leaf for Views
     app.views.use(.leaf)
 
-    // Configuração do JWT: define a chave de assinatura sem o uso de 'kid'
+    // JWT Configuration: Sets signing key without using 'kid'
     app.jwt.signers.use(.hs256(key: Environment.get("JWT_SECRET") ?? "secret"))
     
-    // Configuração do banco de dados
+    app.middleware.use(AuthMiddleware())
+    
+    // Database configuration
     let hostname = getEnvValue("DB_HOSTNAME", defaultValue: "localhost")
     let port = Environment.get("DB_PORT").flatMap(Int.init) ?? 5432
     let username = getEnvValue("DB_USERNAME", defaultValue: "postgres")
